@@ -1,49 +1,56 @@
-<?php 
-session_start();
-include("config.php");
+<?php
+include 'config.php';
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $nama_pelamar = $_POST['nama_pelamar'];
+    $email = $_POST['email'];
+    $pekerjaan_id = $_POST['pekerjaan_id'];
 
- if(isset($_GET['id'])){
-    $pekerjaan_id = $_GET['id'];
+    // Insert pelamar
+    $sql = "INSERT INTO pelamar (nama_pelamar, email) VALUES ('$nama_pelamar', '$email')";
+    if ($db->query( $sql)) {
+        $pelamar_id = $db->insert_id;
 
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        $pelamar_id = $_POST['pelamar_id'];
-        $tanggal_melamar = $_POST['tanggal_melamar'];
-
-        $sql = "INSERT INTO lamaran
-        (pekerjaan_id, pelamar_id, tanggal_melamar) VALUES ('$pekerjaan_id', '$pelamar_id', '$tanggal_melamar')";
-        $query = mysqli_query($db, $sql);
-
-        echo "<p>Succes</p>";
+        // Insert lamaran
+        $sql = "INSERT INTO lamaran (pekerjaan_id, pelamar_id, tanggal_melamar) VALUES ('$pekerjaan_id', '$pelamar_id', CURDATE())";
+        if ($db->query($sql)) {
+           $_SESSION['nontifikasi'] = "Berhasil dikirim";
+        } else {
+            $_SESSION['nontifikasi'] = "gagal dikirim";
+        }
+    } else {
+        $_SESSION['nontifikasi'] = "Error";
     }
+    header("Location: dashboard.php");
+}
 
-    $sql = "SELECT * FROM pekerjaan WHERE pekerjaan_id=$pekerjaan_id";
-    $query = mysqli_query($db, $sql);
-    while($pekerja = $query->fetch_assoc()){
+$pekerjaan_id = $_GET['id'];
+$sql = "SELECT * FROM pekerjaan WHERE pekerjaan_id = $pekerjaan_id";
+$result = $db->query($sql);
+$row = $result->fetch_assoc();
 
-    }
-    
-   while($karyawan = $query->fetch_assoc());
-    
- }
+
+
+
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>lamaran</title>
+    <title>Apply for Job</title>
+   
 </head>
 <body>
-    <h2>Lamaran untuk <?php echo $pekerja['nama_pekerjaan']; ?></h2>
-    <form action="prosesapply.php" method="POST">
-        <label for="">Pilih Pelamar</label>
-        <select name="pelamar_id" id="pelamar_id">
-            <option value="<?php echo $karyawan['pelamar_id']; ?>"><?php echo $karyawan['nama_pelamar']; ?></option>
-        </select>
+    <h1>lamaran untuk <?php echo $row['nama_pekerjaan']; ?></h1>
+    <form method="POST">
+        <input type="hidden" name="pekerjaan_id" value="<?php echo $pekerjaan_id; ?>">
+        <label for="nama_pelamar">Nama Pelamar:</label>
+        <input type="text" id="nama_pelamar" name="nama_pelamar" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">Apply</button>
     </form>
 </body>
 </html>

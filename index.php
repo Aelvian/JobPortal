@@ -16,20 +16,21 @@ include("config.php");
         <p><?php echo $_SESSION['nontifikasi']; ?></p>
         <?php unset($_SESSION['nontifikasi']); ?>
         <?php endif; ?>
-
+        
         <?php
           $query = $db->query("SELECT * FROM pekerjaan");
-          while($pekerja = $query->fetch_assoc()){
+          while($pekerja = $query->fetch_assoc()):
         ?>
-
+        <form>
+        <input type="hidden"<?php echo $pekerja['pekerjaan_id']; ?>>
         <h3><?php echo $pekerja['nama_pekerjaan']; ?></h3>
         <h5><?php echo $pekerja['nama_perusahaan'] ?></h5>
         <p><?php echo $pekerja['alamat'] ?></p>
         <a onclick="retrun confirm('Apakakah Sudah Tidak Terpakai?')"
         href="hapus.php?pekerjaan_id=<?php echo $pekerja['pekerjaan_id'] ?>">Hapus</a>
-        <a href="apply.php?id=<?php echo $pekerja['pekerjaan_id'] ?>">Apply</a>
-        <?php 
-          }
-        ?>
+        <a href="apply.php?id=<?php echo $pekerja['pekerjaan_id'] ?>">apply</a>
+        <?php endwhile; ?>
+        </form>
+       <button> <a href="tambahkerjaan.php">Tambah Pekerjaan?</a></button>
 </body>
 </html>
